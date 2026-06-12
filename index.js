@@ -5,73 +5,96 @@ const {
 } = require("discord.js");
 
 const mongoose =
-require("mongoose");
+    require("mongoose");
 
 const fs =
-require("fs");
-
-const path =
-require("path");
-
-const config =
-require("./config/config.json");
+    require("fs");
 
 const client =
-new Client({
+    new Client({
 
-    intents: [
+        intents: [
 
-        GatewayIntentBits.Guilds,
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.MessageContent
 
-        GatewayIntentBits.GuildMessages,
+        ]
 
-        GatewayIntentBits.MessageContent
-
-    ]
-
-});
+    });
 
 client.commands =
-new Collection();
+    new Collection();
 
+// ==========================
+// Railway Variablen
+// ==========================
+
+const TOKEN =
+    process.env.TOKEN;
+
+const MONGO_URI =
+    process.env.MONGO_URI;
+
+if (!TOKEN) {
+
+    console.error(
+        "TOKEN Variable fehlt."
+    );
+
+    process.exit(1);
+
+}
+
+if (!MONGO_URI) {
+
+    console.error(
+        "MONGO_URI Variable fehlt."
+    );
+
+    process.exit(1);
+
+}
 
 // ==========================
 // MongoDB
 // ==========================
 
-mongoose.connect(
-    config.mongoUri
-)
-.then(() => {
+mongoose.connect(MONGO_URI)
 
-    console.log(
-        "MongoDB verbunden."
-    );
+    .then(() => {
 
-})
-.catch(console.error);
+        console.log(
+            "MongoDB verbunden."
+        );
 
+    })
+
+    .catch(error => {
+
+        console.error(
+            "MongoDB Fehler:",
+            error
+        );
+
+    });
 
 // ==========================
 // Commands laden
 // ==========================
 
 const commandFiles =
-fs.readdirSync(
-    "./commands"
-).filter(
-    file => file.endsWith(".js")
-);
+    fs.readdirSync("./commands")
+        .filter(file =>
+            file.endsWith(".js")
+        );
 
-for (
-    const file
-    of commandFiles
-) {
+for (const file of commandFiles) {
 
     const command =
-    require(
-        `./commands/${file}`
-    );
+        require(
+            `./commands/${file}`
+        );
 
     client.commands.set(
         command.data.name,
@@ -80,27 +103,22 @@ for (
 
 }
 
-
 // ==========================
 // Events laden
 // ==========================
 
 const eventFiles =
-fs.readdirSync(
-    "./events"
-).filter(
-    file => file.endsWith(".js")
-);
+    fs.readdirSync("./events")
+        .filter(file =>
+            file.endsWith(".js")
+        );
 
-for (
-    const file
-    of eventFiles
-) {
+for (const file of eventFiles) {
 
     const event =
-    require(
-        `./events/${file}`
-    );
+        require(
+            `./events/${file}`
+        );
 
     if (event.once) {
 
@@ -134,11 +152,8 @@ for (
 
 }
 
-
 // ==========================
 // Login
 // ==========================
 
-client.login(
-    config.token
-);
+client.login(TOKEN);

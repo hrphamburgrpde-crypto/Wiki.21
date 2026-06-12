@@ -1,20 +1,24 @@
-const { REST, Routes } =
-require("discord.js");
+const {
+    REST,
+    Routes
+} = require("discord.js");
 
 const config =
-require("../config/config.json");
+    require("../config/config.json");
 
 const wiki =
-require("../commands/wiki");
+    require("../commands/wiki");
 
 const commands = [
     wiki.data.toJSON()
 ];
 
 const rest =
-new REST({
-    version: "10"
-}).setToken(config.token);
+    new REST({
+        version: "10"
+    }).setToken(
+        config.token
+    );
 
 (async () => {
 
